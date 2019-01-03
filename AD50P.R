@@ -3,10 +3,14 @@ library(gplots)
 library(factoextra)
 library(corrplot)
 
+library(ade4)
+
 bdtmp_multim = read.csv("~/AD50/AFC/budget_temps_multimedia.csv", header=TRUE, row.names=1, sep=";")
 t_bdtmp_multim = as.table(as.matrix(bdtmp_multim))
 balloonplot(t(t_bdtmp_multim) ,main ="bdtmp_multim", xlab ="", ylab="",
             label = FALSE, show.margins = FALSE)
+
+df= bdtmp_multim[1:8,]
 
 ##############################   TEST KHI-DEUX  ########################################
 
@@ -21,6 +25,10 @@ test$expected #: la matrice attendue sous l'hypothèse nulle d'absence de biais.
 ##############################   AFC  ########################################
 
 res.ca <- CA(bdtmp_multim, row.sup = 9:nrow(bdtmp_multim))
+
+res.ca <- CA(bdtmp_multim[1:8,])
+
+res.ca <- dudi.coa(bdtmp_multim[1:8,],scannf= FALSE, nf = 2) # hclust eclust
 
 row <- get_ca_row(res.ca)
 
@@ -81,7 +89,7 @@ summary(res.ca)
 
 
 
-##############################   HCLUST / KMEANS  ########################################
+##############################   HCLUST / KMEANS / SILHOUETTE  ########################################
 
 clust0 <- HCPC(res.ca,consol = FALSE) #kmeans FALSE
 clust <- HCPC(res.ca,consol = TRUE) #kmeans TRUE
@@ -100,4 +108,29 @@ fviz_cluster(clust,repel = TRUE,            # Evite le chevauchement des textes
              palette = "jco",         # Palette de couleurs, voir ?ggpubr::ggpar
              ggtheme = theme_minimal(),
              main = "K-means")
+
+
+
+
+dist <- dist(res.ca$li[,1:2],method="euclidian")
+dist <- dist^2
+classif <- hclust(d= dist, method="ward.D2")
+plot(classif, main="Dendrogramme \n methode de Ward", xlab = "Les professions",
+     sub = "")
+
+kmeans <- kmeans(res.ca$li[,1:2], centers= 4 , nstart =2)
+print(kmeans)
+
+
+library(cluster)
+km.res <- eclust(res.ca$li[,1:2], "kmeans", k =4,
+                 nstart = 2, graph = FALSE) #nstart=1 meme résultat que 
+fviz_cluster(km.res, frame.type = "norm", frame.level = 0.68)
+#sil <- silhouette(km.res$cluster, dist(res.ca$li[,1:2],method="euclidian")^2)
+fviz_silhouette(km.res, label=TRUE)
+
+
+res.hc <- eclust(res.ca$li[,1:2], "hclust", k = 4,
+                 method = "ward.D2", graph = FALSE)
+fviz_dend(res.hc, rect = TRUE, show_labels = TRUE) 
 
