@@ -138,11 +138,11 @@ kmeans2 <- kmeans(res.ca$li[,1:2], centers= 4 , nstart =2)
 print(kmeans)
 
 #Plot K-means run = 1
-km.res1 <- eclust(res.ca$li[,1:2], "kmeans", k =4,nstart = 1, graph = TRUE) #nstart=1 meme résultat que 
+km.res1 <- eclust(res.ca$li[,1:2], "kmeans", k =4,nstart = 1, graph = TRUE)
 
 
 #Plot K-means run = 2
-km.res2 <- eclust(res.ca$li[,1:2], "kmeans", k =4,nstart = 2, graph = TRUE) #nstart=1 meme résultat que 
+km.res2 <- eclust(res.ca$li[,1:2], "kmeans", k =4,nstart = 2, graph = TRUE)
 
 #Plot Silhouette run = 1
 fviz_silhouette(km.res1, label=TRUE)
